@@ -1,12 +1,15 @@
-import { EditProfile, Login, Signin, Landing, CreateTask } from './pages'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// import { EditProfile, Login, Signin, Landing, CreateTask } from './pages'
+// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AuthProvider from './hooks/AuthProvider';
+import Routes from './routes';
+
 function App() {
 
 
 
   return (
     <>
-      <Router>
+      {/* <Router>
         <Routes>
 
           <Route path="/login" exact element={<Login />} />
@@ -19,7 +22,12 @@ function App() {
 
 
         </Routes>
-      </Router>
+      </Router> */}
+      <AuthProvider>
+        <Routes />
+      </AuthProvider>
+
+
     </>
   )
 }
