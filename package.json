@@ -1,0 +1,15 @@
+{
+  "name": "todolist",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:folder1": "cd client && npm run dev",
+    "dev:folder2": "cd server && npm run dev",
+    "dev": "npm run dev:folder1 && npm run dev:folder2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

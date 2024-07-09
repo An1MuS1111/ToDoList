@@ -11,7 +11,7 @@ function App() {
 
           <Route path="/login" exact element={<Login />} />
           <Route path="/signin" exact element={<Signin />} />
-          <Route path="/editProfile" exact element={<EditProfile />} />
+          <Route path="/editProfile/:id" exact element={<EditProfile />} />
           <Route path="/landing" exact element={<Landing />} />
           <Route path="/createTask" exact element={<CreateTask />} />
 

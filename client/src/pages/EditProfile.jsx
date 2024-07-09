@@ -1,9 +1,99 @@
-import { Label } from "@/ui-components/ui/label"
-import { Input } from "@/ui-components/ui/input"
-import { Button } from "@/ui-components/ui/button"
+import { Label } from "@/ui-components/ui/label";
+import { Input } from "@/ui-components/ui/input";
+import { Button } from "@/ui-components/ui/button";
+import { useFetch } from '../hooks/useFetch';
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function EditProfile() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+
+    const { isLoading, apiData, serverError } = useFetch('http://localhost:4444/users/' + id);
+    console.log(apiData);
+
+    const [showPassword, setShowPassword] = useState(false)
+    const [showNewPassword, setShowNewPassword] = useState(false)
+    const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false)
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        password: '',
+        newPassword: '',
+        confirmNewPassword: '',
+    });
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword)
+    }
+
+    const toggleNewPasswordVisibility = () => {
+        setShowNewPassword(!showNewPassword)
+    }
+
+    const toggleConfirmNewPasswordVisibility = () => {
+        setShowConfirmNewPassword(!showConfirmNewPassword)
+    }
+
+    useEffect(() => {
+        if (apiData) {
+            setFormData({
+                ...formData,
+                name: apiData.name,
+                email: apiData.email,
+            });
+        }
+    }, [apiData]);
+
+    if (isLoading) {
+        return <div>...Loading</div>;
+    }
+
+    if (serverError) {
+        return <div>Error: {serverError.message}</div>;
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log(formData);
+        if (formData.password !== apiData.password) {
+            alert('Your current password is incorrect');
+            return;
+        }
+
+        if (formData.newPassword !== formData.confirmNewPassword) {
+            alert('New Passwords do not match');
+            return;
+        }
+
+        if (formData.newPassword === apiData.password) {
+            alert('New password cannot be the same as current password');
+            return;
+        }
+
+        const formInfo = {
+            name: formData.name,
+            email: formData.email,
+            password: formData.newPassword
+        };
+        console.log(formInfo);
+        axios.put('http://localhost:4444/users/' + id, formInfo)
+            .then(res => {
+                console.log(res);
+                navigate('/landing');
+            })
+            .catch(err => console.error(err));
+    };
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
     return (
+
         <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-950">
             <div className="mx-auto w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-lg dark:bg-gray-900">
                 <div className="text-center">
@@ -17,6 +107,8 @@ export default function EditProfile() {
                         </Label>
                         <div className="mt-1">
                             <Input
+                                onChange={handleChange}
+                                value={formData.name}
                                 id="name"
                                 name="name"
                                 type="text"
@@ -33,6 +125,9 @@ export default function EditProfile() {
                         </Label>
                         <div className="mt-1">
                             <Input
+                                value={formData.email}
+                                onChange={handleChange}
+
                                 id="email"
                                 name="email"
                                 type="email"
@@ -51,7 +146,9 @@ export default function EditProfile() {
                             <Input
                                 id="password"
                                 name="password"
-                                type="password"
+                                onChange={handleChange}
+
+                                type={showPassword ? 'text' : 'password'}
                                 autoComplete="current-password"
                                 required
                                 placeholder="Enter your current password"
@@ -59,47 +156,54 @@ export default function EditProfile() {
                             />
                             <Button
                                 variant="ghost"
+                                onClick={togglePasswordVisibility}
                                 size="icon"
                                 className="ml-3 h-10 w-10 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-600 dark:hover:text-gray-400"
                             >
-                                <EyeIcon className="h-5 w-5" />
+                                {showPassword ? <EyeOff className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                                 <span className="sr-only">Toggle password visibility</span>
                             </Button>
                         </div>
                     </div>
                     <div>
-                        <Label htmlFor="new-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <Label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             New Password
                         </Label>
                         <div className="mt-1 flex items-center">
                             <Input
-                                id="new-password"
-                                name="new-password"
-                                type="password"
-                                autoComplete="new-password"
+                                id="newPassword"
+                                onChange={handleChange}
+
+                                name="newPassword"
+                                type={showNewPassword ? "text" : "password"}
+                                autoComplete="newPassword"
                                 required
                                 placeholder="Enter your new password"
                                 className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
                             />
                             <Button
                                 variant="ghost"
+                                onClick={toggleNewPasswordVisibility}
                                 size="icon"
                                 className="ml-3 h-10 w-10 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-600 dark:hover:text-gray-400"
                             >
-                                <EyeIcon className="h-5 w-5" />
+                                {showNewPassword ? <EyeOff className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+
                                 <span className="sr-only">Toggle password visibility</span>
                             </Button>
                         </div>
                     </div>
                     <div>
-                        <Label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <Label htmlFor="confirmNewPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Confirm New Password
                         </Label>
                         <div className="mt-1 flex items-center">
                             <Input
-                                id="confirm-password"
-                                name="confirm-password"
-                                type="password"
+                                id="confirmNewPassword"
+                                name="confirmNewPassword"
+                                onChange={handleChange}
+
+                                type={showConfirmNewPassword ? "text" : "password"}
                                 autoComplete="new-password"
                                 required
                                 placeholder="Confirm your new password"
@@ -107,17 +211,19 @@ export default function EditProfile() {
                             />
                             <Button
                                 variant="ghost"
+                                onClick={toggleConfirmNewPasswordVisibility}
                                 size="icon"
                                 className="ml-3 h-10 w-10 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-600 dark:hover:text-gray-400"
                             >
-                                <EyeIcon className="h-5 w-5" />
+                                {showConfirmNewPassword ? <EyeOff className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+
                                 <span className="sr-only">Toggle password visibility</span>
                             </Button>
                         </div>
                     </div>
                     <div className="flex justify-end gap-2">
                         <Button variant="outline">Cancel</Button>
-                        <Button type="submit">Save Changes</Button>
+                        <Button type="submit" onClick={handleSubmit}>Save Changes</Button>
                     </div>
                 </form>
             </div>
@@ -127,20 +233,13 @@ export default function EditProfile() {
 
 function EyeIcon(props) {
     return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-            <circle cx="12" cy="12" r="3" />
-        </svg>
+        <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+    )
+}
+
+
+function EyeOff(props) {
+    return (
+        <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" x2="22" y1="2" y2="22" /></svg>
     )
 }
