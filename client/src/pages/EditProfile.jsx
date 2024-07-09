@@ -81,7 +81,7 @@ export default function EditProfile() {
         axios.put('http://localhost:4444/users/' + id, formInfo)
             .then(res => {
                 console.log(res);
-                navigate('/landing');
+                navigate('/');
             })
             .catch(err => console.error(err));
     };

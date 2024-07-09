@@ -11,7 +11,7 @@ import { Badge } from "@/ui-components/ui/badge"
 
 const TaskCardComponent = ({ items }) => {
 
-    console.log(items)
+
 
 
     const handleDate = (d) => {
@@ -21,25 +21,31 @@ const TaskCardComponent = ({ items }) => {
     }
 
 
-    
+
 
     return (
         <>
             {items.map((item, index) =>
                 <Accordion type="single" collapsible>
                     <AccordionItem value="item-1">
-                        <AccordionTrigger className="flex items-center justify-between">
+                        {/* Trigger start */}
+
+                        <div className="flex items-center justify-between" >
+
                             <div className="flex items-center gap-2">
                                 <Checkbox />
                                 <span className="text-sm font-medium">{item.title}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Badge variant="secondary">{item.taskCategory}</Badge>
+
+
                                 <Button size="icon" variant="ghost">
                                     <MoveVerticalIcon className="h-4 w-4" />
                                 </Button>
                             </div>
-                        </AccordionTrigger>
+                            <AccordionTrigger className="flex items-center justify-between"></AccordionTrigger></div>
+                        {/* Trigger end  */}
                         <AccordionContent>
                             <div className="grid gap-2">
                                 <div>

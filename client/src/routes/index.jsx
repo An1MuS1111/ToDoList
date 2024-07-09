@@ -27,8 +27,17 @@ const Routes = () => {
             element: <ProtectedRoute />, // Wrap the component in ProtectedRoute
             children: [
                 {
-                    path: "/",
+                    path: "/:id",
                     element: <Landing />,
+                },
+
+                {
+                    path: "/createTask",
+                    element: <CreateTask />,
+                },
+                {
+                    path: "/editProfile/:id",
+                    element: <EditProfile />,
                 },
 
             ],

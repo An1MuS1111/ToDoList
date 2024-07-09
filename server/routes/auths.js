@@ -51,6 +51,7 @@ router.post("/login", async (req, res) => {
         refreshTokens.push(refreshToken);
 
         res.json({
+            name: user.name,
             email: user.email,
             id: user.id,
             accessToken,

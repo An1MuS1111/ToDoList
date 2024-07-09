@@ -1,15 +1,18 @@
-
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/ui-components/ui/dropdown-menu"
 import { Button } from "@/ui-components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/ui-components/ui/avatar"
 import { Link } from 'react-router-dom'
-
+import { useAuth } from '@/hooks/AuthProvider';
 
 const Navbar = () => {
+
+    const { logout, user } = useAuth();
+    const { name, id } = user
+
     return (
         <header className="sticky top-0 z-40 border-b bg-background">
             <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-                <Link href="#" className="flex items-center gap-2 font-bold" prefetch={false}>
+                <Link to="/" className="flex items-center gap-2 font-bold">
                     <CheckIcon className="h-6 w-6" />
                     <span>Todo</span>
                 </Link>
@@ -24,21 +27,18 @@ const Navbar = () => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
-                            <DropdownMenuLabel>Khalid</DropdownMenuLabel>
+                            <DropdownMenuLabel>{name}</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <Link href="#" prefetch={false}>
-                                    Profile
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Link href="#" prefetch={false}>
-                                    Settings
+                            <DropdownMenuItem asChild>
+                                <Link to={`/editProfile/${id}`}>
+                                    Edit Profile
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <Button variant="destructive">Logout</Button>
+                            <DropdownMenuItem asChild>
+                                <Button className="w-full"
+                                    onClick={logout}
+                                    variant="destructive">Logout</Button>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

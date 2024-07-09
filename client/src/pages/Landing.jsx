@@ -1,4 +1,3 @@
-
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/ui-components/ui/dropdown-menu"
 import { Button } from "@/ui-components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/ui-components/ui/avatar"
@@ -9,22 +8,22 @@ import { useFetch } from "@/hooks/useFetch"
 import { useState, useEffect } from "react"
 import Footer from "@/components/Footer"
 import Navbar from "@/components/Navbar"
-
+import { useAuth } from "@/hooks/AuthProvider"
+import { useParams } from "react-router-dom"
 
 
 
 
 export default function Component() {
-    const { isLoading, apiData, serverError } = useFetch('http://localhost:4444/todos/1');
+
+
+    const { id } = useParams();
+
+    const { isLoading, apiData, serverError } = useFetch('http://localhost:4444/todos/' + id);
 
     const [todos, setTodos] = useState([])
     const [urgents, setUrgents] = useState([])
     const [dones, setDones] = useState([])
-
-
-
-
-
 
 
     useEffect(() => {
@@ -39,6 +38,16 @@ export default function Component() {
             setDones(doneTasks);
         }
     }, [apiData]);
+
+    if (isLoading) {
+        return <div>...Loading</div>;
+    }
+
+    if (serverError) {
+        return <div>Error: {serverError.message}</div>;
+    }
+
+
 
     return (
         <div className="flex min-h-screen flex-col bg-background">
