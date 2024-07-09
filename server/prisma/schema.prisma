@@ -28,7 +28,7 @@ model Todo {
   userId          Int
   title           String
   description     String
-  subTask         String[]     @default([])
+  subTasks        Json         @default("[]")
   taskStartedAt   DateTime
   taskEndedAt     DateTime
   taskCreatedAt   DateTime     @default(now())
