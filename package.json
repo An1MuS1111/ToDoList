@@ -5,11 +5,17 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "install:folder1": "cd folder1 && npm install",
+    "install:folder2": "cd folder2 && npm install",
+    "install:all": "concurrently \"npm run install:folder1\" \"npm run install:folder2\"",
     "dev:folder1": "cd client && npm run dev",
     "dev:folder2": "cd server && npm run dev",
-    "dev": "npm run dev:folder1 && npm run dev:folder2"
+    "dev": "concurrently \"npm run dev:folder1\" \"npm run dev:folder2\""
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
 }
