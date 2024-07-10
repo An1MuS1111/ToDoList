@@ -3,24 +3,11 @@
 
 ### Installation
 
-1. Clone the repo using <kbd onclick="copyToClipboard('git clone https://github.com/An1MuS1111/ToDoList.git')">`git clone https://github.com/An1MuS1111/ToDoList.git`</kbd>
+1. Clone the repo using command `git clone https://github.com/An1MuS1111/ToDoList.git`
 2. Open terminal in the folder
-3. Run this command in the terminal <kbd onclick="copyToClipboard('npm run install:all
-">`npm run install:all
-`</kbd>
-4. Upon completing the installation run this commmand <kbd onclick="copyToClipboard('npm run dev">`npm run dev`</kbd>
-
-
-<script>
-function copyToClipboard(text) {
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand('copy');
-  document.body.removeChild(textarea);
-}
-</script>
+3. Run `npm install`
+4. Upon completion Run this command in the terminal `npm run install:all` to install all the dependencies.
+5. Upon completing the installation run this commmand `npm run dev`
 
 
 ### Frameworks

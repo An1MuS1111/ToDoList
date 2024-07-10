@@ -7,7 +7,7 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
     const [token, setToken_] = useState(localStorage.getItem('token'));
     const [user, setUser] = useState(() => {
-        const user = sessionStorage.getItem('user');
+        const user = localStorage.getItem('user');
         return user ? JSON.parse(user) : null;
     });
 
@@ -19,7 +19,7 @@ const AuthProvider = ({ children }) => {
         setToken_(null);
         setUser(null);
         localStorage.removeItem('token');
-        sessionStorage.removeItem('user');
+        localStorage.removeItem('user');
         delete axios.defaults.headers.common['Authorization'];
     };
 
@@ -30,6 +30,7 @@ const AuthProvider = ({ children }) => {
         } else {
             delete axios.defaults.headers.common['Authorization'];
             localStorage.removeItem('token');
+
         }
     }, [token]);
 
@@ -64,6 +65,7 @@ const AuthProvider = ({ children }) => {
             return Promise.reject(error);
         }
     );
+
 
     const contextValue = useMemo(
         () => ({

@@ -16,8 +16,12 @@ import { useParams } from "react-router-dom"
 
 export default function Component() {
 
+    const [user, setUser] = useState(() => {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+    });
 
-    const { id } = useParams();
+    const { id } = user;
 
     const { isLoading, apiData, serverError } = useFetch('http://localhost:4444/todos/' + id);
 

@@ -3,48 +3,58 @@ import { Button } from "@/ui-components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/ui-components/ui/avatar"
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/AuthProvider';
+import { useState } from 'react';
 
 const Navbar = () => {
 
-    const { logout, user } = useAuth();
-    const { name, id } = user
+    const { logout } = useAuth();
+    const [user, setUser] = useState(() => {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+    });
+    const { name } = user
 
     return (
-        <header className="sticky top-0 z-40 border-b bg-background">
-            <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-                <Link to="/" className="flex items-center gap-2 font-bold">
-                    <CheckIcon className="h-6 w-6" />
-                    <span>Todo</span>
-                </Link>
-                <div className="flex items-center gap-4">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src="/placeholder-user.jpg" />
-                                    <AvatarFallback>K</AvatarFallback>
-                                </Avatar>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
-                            <DropdownMenuLabel>{name}</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                                <Link to={`/editProfile/${id}`}>
-                                    Edit Profile
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                                <Button className="w-full"
-                                    onClick={logout}
-                                    variant="destructive">Logout</Button>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+
+        <>{user && ( // Render only if 'user' is not null
+            <header className="sticky top-0 z-40 border-b bg-background">
+                <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+                    <Link to="/" className="flex items-center gap-2 font-bold">
+                        <CheckIcon className="h-6 w-6" />
+                        <span>Todo</span>
+                    </Link>
+                    <div className="flex items-center gap-4">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src="/placeholder-user.jpg" />
+                                        <AvatarFallback>K</AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuLabel>{name}</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <Link to={'/editProfile'}>
+                                        Edit Profile
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <Button className="w-full"
+                                        onClick={logout}
+                                        variant="destructive">Logout</Button>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
-            </div>
-        </header>
+            </header>
+        )}</>
+
+
     )
 }
 

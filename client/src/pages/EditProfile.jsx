@@ -7,7 +7,12 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 export default function EditProfile() {
-    const { id } = useParams();
+    const [user, setUser] = useState(() => {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+    });
+
+    const { id } = user;
     const navigate = useNavigate();
 
     const { isLoading, apiData, serverError } = useFetch('http://localhost:4444/users/' + id);
