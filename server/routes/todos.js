@@ -1,7 +1,18 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { PrismaClientValidationError } = require('@prisma/client/runtime/library');
 
+async function main() {
+    try {
+        await prisma.$connect();
+        console.log('Database connected');
+    } catch (error) {
+        console.error('Failed to connect to database:', error);
+    }
+}
+
+main();
 // Get all todos
 router.get('/', async (req, res) => {
     try {
@@ -25,29 +36,35 @@ router.get('/:userId', async (req, res) => {
     }
 });
 
+
 // Add a new todo
+
 router.post('/add', async (req, res) => {
-    const { userId, title, description, subTasks, taskStartedAt, taskEndedAt, taskStatus, taskCategory } = req.body;
-    if (!userId || !title || !taskStartedAt || !taskEndedAt || !taskStatus || !taskCategory) {
+    const { userId, title, description, subTasks, taskStartedAt, taskCompletedAt, taskStatus, taskCategory } = req.body;
+    if (!userId || !title || !taskStartedAt || !taskCompletedAt || !taskStatus || !taskCategory) {
         return res.status(400).json({ error: 'Required fields are missing' });
     }
 
     try {
         const todo = await prisma.todo.create({
             data: {
-                userId,
+                userId: Number(userId),
                 title,
                 description,
                 subTasks,
-                taskStartedAt,
-                taskEndedAt,
+                taskStartedAt: new Date(taskStartedAt),
+                taskCompletedAt: new Date(taskCompletedAt),
                 taskStatus,
                 taskCategory,
             },
         });
         res.status(201).json(todo);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to create todo' });
+        if (error instanceof PrismaClientValidationError) {
+            res.status(400).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: 'Failed to create todo' });
+        }
     }
 });
 
