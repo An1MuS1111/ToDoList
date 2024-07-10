@@ -9,22 +9,9 @@ function App() {
 
   return (
     <>
-      {/* <Router>
-        <Routes>
-
-          <Route path="/login" exact element={<Login />} />
-          <Route path="/signin" exact element={<Signin />} />
-          <Route path="/editProfile/:id" exact element={<EditProfile />} />
-          <Route path="/landing" exact element={<Landing />} />
-          <Route path="/createTask" exact element={<CreateTask />} />
-
-
-
-
-        </Routes>
-      </Router> */}
       <AuthProvider>
         <Routes />
+
       </AuthProvider>
 
 
