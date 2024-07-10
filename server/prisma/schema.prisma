@@ -30,7 +30,7 @@ model Todo {
   description     String
   subTasks        Json         @default("[]")
   taskStartedAt   DateTime
-  taskEndedAt     DateTime
+  taskUpdatedAt   DateTime     @updatedAt
   taskCreatedAt   DateTime     @default(now())
   taskCompletedAt DateTime?
   taskStatus      TaskStatus

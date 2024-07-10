@@ -4,11 +4,6 @@ import { Checkbox } from "@/ui-components/ui/checkbox"
 import { Badge } from "@/ui-components/ui/badge"
 
 
-
-
-
-
-
 const TaskCardComponent = ({ items }) => {
 
 
@@ -107,3 +102,4 @@ function MoveVerticalIcon(props) {
         </svg>
     )
 }
+

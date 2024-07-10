@@ -1,215 +1,199 @@
-import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/ui-components/ui/dropdown-menu"
 import { Button } from "@/ui-components/ui/button"
-import { Card, CardContent, CardFooter } from "@/ui-components/ui/card"
+import { Avatar, AvatarImage, AvatarFallback } from "@/ui-components/ui/avatar"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/ui-components/ui/card"
 import { Label } from "@/ui-components/ui/label"
 import { Input } from "@/ui-components/ui/input"
 import { Textarea } from "@/ui-components/ui/textarea"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/ui-components/ui/select"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/ui-components/ui/select"
+import { Checkbox } from "@/ui-components/ui/checkbox"
+import { Badge } from "@/ui-components/ui/badge"
+import { useState } from 'react'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
+import axios from 'axios'
 
 export default function Component() {
-    const [formData, setFormData] = useState({})
-    const [subtasks, setSubtasks] = useState([]);
-    const [newSubtask, setNewSubtask] = useState('');
 
-    const handleAddSubtask = () => {
-        if (newSubtask.trim() !== '') {
-            setSubtasks([...subtasks, newSubtask]);
-            setNewSubtask('');
+    const [subTasks, setSubTasks] = useState([]);
+    const [newSubTask, setNewSubTask] = useState('');
+
+    const handleAddSubTask = () => {
+        if (newSubTask.trim() !== '') {
+            setSubTasks([...subTasks, newSubTask]);
+            setNewSubTask('');
         }
     };
 
-    const handleDeleteSubtask = (index) => {
-        setSubtasks(subtasks.filter((_, i) => i !== index));
+    const handleRemoveSubTask = (index) => {
+        setSubTasks(subTasks.filter((_, i) => i !== index));
+    };
+
+    const [user, setUser] = useState(() => {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+    });
+
+    const { id } = user;
+
+    const [formData, setFormData] = useState({
+        userId: id,
+        title: "",
+        description: "",
+        subTasks: [],
+        taskStartedAt: "",
+        taskEndedAt: "",
+        taskStatus: "",
+        taskCategory: "",
+    });
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.id]: e.target.value });
+    };
+
+    const handleSelectChange = (id, value) => {
+        setFormData({ ...formData, [id]: value });
     };
 
 
+
+    const handleSubmit = async () => {
+        const formattedSubTasks = subTasks.map((task, index) => ({
+            complete: false, // Assuming subtasks are incomplete initially
+            title: task,
+        }));
+
+        const taskData = {
+            userId: id,
+            title: formData.title,
+            description: formData.description,
+            subTasks: formattedSubTasks,
+            taskStartedAt: new Date(`${formData.taskStartedAt}T${formData.taskStartTime}:00`).toISOString(),
+            taskEndedAt: new Date(`${formData.taskEndedAt}T${formData.taskEndTime}:00`).toISOString(),
+            taskStatus: formData.taskStatus,
+            taskCategory: formData.taskCategory,
+        };
+
+        console.log(taskData)
+        try {
+            const response = await axios.post('http://localhost:4444/api/tasks', taskData);
+
+            if (response.ok) {
+                // Handle success
+                console.log('Task created successfully');
+            } else {
+                // Handle error
+                console.error('Failed to create task');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     return (
-        <div className="flex flex-col min-h-screen bg-muted/40">
-            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-                <Link className="flex items-center gap-2 font-semibold" >
-                    <CheckIcon className="h-6 w-6" />
-                    <span>Todo</span>
-                </Link>
-                <div className="ml-auto flex items-center gap-2">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="rounded-full">
-                                <img src="/placeholder.svg" width={36} height={36} alt="Avatar" className="rounded-full" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Jared Palmer</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <Link  >
-                                    Profile
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Link  >
-                                    Settings
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <Link  >
-                                    Logout
-                                </Link>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </header>
-            <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8  w-1/3 mx-auto">
-                <div className="grid gap-8">
-                    <div className="grid gap-4">
-                        <div className="flex items-center justify-between">
-                            <h1 className="text-2xl font-bold">Create Task</h1>
-                        </div>
-                        <Card className="pt-5 w-full" >
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="title">Task Title</Label>
-                                    <Input id="title" type="text" placeholder="Enter task title" />
+        <div className="flex min-h-screen flex-col bg-background">
+            <Navbar />
+            <main className="container flex-1 px-4 py-8 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Create New Task</CardTitle>
+                            <CardDescription>Fill out the details for your new task.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="title">Title</Label>
+                                <Input id="title" placeholder="Enter task title" value={formData.title} onChange={handleChange} />
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea id="description" placeholder="Enter task description" value={formData.description} onChange={handleChange} />
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="taskCategory">Category</Label>
+                                <Select id="taskCategory" onChange={(value) => handleSelectChange('taskCategory', value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="work">Work</SelectItem>
+                                        <SelectItem value="personal">Personal</SelectItem>
+                                        <SelectItem value="shopping">Shopping</SelectItem>
+                                        <SelectItem value="health">Health</SelectItem>
+                                        <SelectItem value="education">Education</SelectItem>
+                                        <SelectItem value="others">Others</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="taskStatus">Status</Label>
+                                <Select id="taskStatus" onChange={(value) => handleSelectChange('taskStatus', value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="todo">To Do</SelectItem>
+                                        <SelectItem value="urgent">Urgent</SelectItem>
+                                        <SelectItem value="done">Done</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label>Sub Tasks</Label>
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                        placeholder="Enter sub task"
+                                        value={newSubTask}
+                                        onChange={(e) => setNewSubTask(e.target.value)}
+                                    />
+                                    <Button size="icon" variant="ghost" onClick={handleAddSubTask}>
+                                        <PlusIcon className="h-4 w-4" />
+                                    </Button>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="description">Task Description</Label>
-                                    <Textarea id="description" placeholder="Enter task description" className="min-h-[100px]" />
-                                </div>
-                                {/*  */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="subtasks">Sub Tasks</Label>
-                                    <div className="flex items-center gap-2">
-                                        <Input
-                                            id="subtasks"
-                                            type="text"
-                                            placeholder="Add sub task"
-                                            value={newSubtask}
-                                            onChange={(e) => setNewSubtask(e.target.value)}
-                                        />
-                                        <Button variant="ghost" size="icon" onClick={handleAddSubtask}>
-                                            <PlusIcon className="h-4 w-4" />
-                                            <span className="sr-only">Add sub task</span>
-                                        </Button>
-                                    </div>
-                                    <div className="grid gap-2">
-                                        {subtasks.map((subtask, index) => (
-                                            <div key={index} className="flex items-center justify-between">
-                                                <div>{subtask}</div>
-                                                <div className="flex items-center gap-2">
-                                                    <Button variant="ghost" size="icon">
-                                                        <FilePenIcon className="h-4 w-4" />
-                                                        <span className="sr-only">Edit</span>
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleDeleteSubtask(index)}>
-                                                        <TrashIcon className="h-4 w-4" />
-                                                        <span className="sr-only">Delete</span>
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                {/*  */}
-                                {/* <div className="space-y-2">
-                                    <Label htmlFor="subtasks">Sub Tasks</Label>
-                                    <div className="flex items-center gap-2">
-                                        <Input id="subtasks" type="text" placeholder="Add sub task" />
-                                        <Button variant="ghost" size="icon">
-                                            <PlusIcon className="h-4 w-4" />
-                                            <span className="sr-only">Add sub task</span>
-                                        </Button>
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <div className="flex items-center justify-between">
-                                            <div>Sub Task 1</div>
+                                <div className="grid gap-2">
+                                    {subTasks.map((task, index) => (
+                                        <div key={index} className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <Button variant="ghost" size="icon">
-                                                    <FilePenIcon className="h-4 w-4" />
-                                                    <span className="sr-only">Edit</span>
-                                                </Button>
-                                                <Button variant="ghost" size="icon">
-                                                    <TrashIcon className="h-4 w-4" />
-                                                    <span className="sr-only">Delete</span>
-                                                </Button>
+                                                {/* <Checkbox /> */}
+                                                <p>{index + 1}.</p>
+                                                <span className="text-sm font-medium">{task}</span>
                                             </div>
+                                            <Button size="icon" variant="ghost" onClick={() => handleRemoveSubTask(index)}>
+                                                <XIcon className="h-4 w-4" />
+                                            </Button>
                                         </div>
-                                        <div className="flex items-center justify-between">
-                                            <div>Sub Task 2</div>
-                                            <div className="flex items-center gap-2">
-                                                <Button variant="ghost" size="icon">
-                                                    <FilePenIcon className="h-4 w-4" />
-                                                    <span className="sr-only">Edit</span>
-                                                </Button>
-                                                <Button variant="ghost" size="icon">
-                                                    <TrashIcon className="h-4 w-4" />
-                                                    <span className="sr-only">Delete</span>
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> */}
-                                <div className="grid  grid-cols-2 grid-rows-2 gap-4">
-                                    <div className="space-y-2 col-start-1 col-end-3">
-                                        <Label htmlFor="start-time" className="mt-4">
-                                            Start Time
-                                        </Label>
-                                        <Input id="start-time" type="datetime-local" />
-                                    </div>
-                                    <div className="space-y-2 col-start-1 col-end-3">
-                                        <Label htmlFor="end-time">End Time</Label>
-                                        <Input id="end-time" type="datetime-local" />
-                                    </div>
+                                    ))}
                                 </div>
-                                <div className="grid grid-rows-2 grid-cols-2 gap-4">
-                                    <div className="space-y-2 col-start-1 col-end-3">
-                                        <Label htmlFor="status">Task Status</Label>
-                                        <Select id="status">
-                                            <SelectTrigger >
-                                                <SelectValue placeholder="Select a status" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="todo">To do</SelectItem>
-                                                <SelectItem value="urgent">Urgent</SelectItem>
-                                                <SelectItem value="done">Done</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-
-                                    </div>
-                                    <div className="space-y-2 col-start-1 col-end-3">
-                                        <Label htmlFor="category">Task Category</Label>
-                                        <Select id="category">
-                                            <SelectTrigger >
-                                                <SelectValue placeholder="Select a category" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="personal">Personal</SelectItem>
-                                                <SelectItem value="work">Work</SelectItem>
-                                                <SelectItem value="shopping">Shopping</SelectItem>
-                                                <SelectItem value="health">Health</SelectItem>
-                                                <SelectItem value="education">Education</SelectItem>
-                                                <SelectItem value="other">Other</SelectItem>
-                                            </SelectContent>
-
-                                        </Select>
-                                    </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="grid gap-1.5">
+                                    <Label htmlFor="taskStartedAt">Start Date</Label>
+                                    <Input type="date" id="taskStartedAt" value={formData.taskStartedAt} onChange={handleChange} />
                                 </div>
-                            </CardContent>
-                            <CardFooter>
-                                <Button>Save Task</Button>
-                            </CardFooter>
-                        </Card>
-                    </div>
+                                <div className="grid gap-1.5">
+                                    <Label htmlFor="taskStartTime">Start Time</Label>
+                                    <Input type="time" id="taskStartTime" value={formData.taskStartTime} onChange={handleChange} />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="grid gap-1.5">
+                                    <Label htmlFor="taskEndedAt">End Date</Label>
+                                    <Input type="date" id="taskEndedAt" value={formData.taskEndedAt} onChange={handleChange} />
+                                </div>
+                                <div className="grid gap-1.5">
+                                    <Label htmlFor="taskEndTime">End Time</Label>
+                                    <Input type="time" id="taskEndTime" value={formData.taskEndTime} onChange={handleChange} />
+                                </div>
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            <Button size="sm" onClick={handleSubmit}>Save Task</Button>
+                        </CardFooter>
+                    </Card>
                 </div>
             </main>
+            <Footer />
         </div>
     )
 }
@@ -234,7 +218,7 @@ function CheckIcon(props) {
 }
 
 
-function FilePenIcon(props) {
+function MoveVerticalIcon(props) {
     return (
         <svg
             {...props}
@@ -248,9 +232,9 @@ function FilePenIcon(props) {
             strokeLinecap="round"
             strokeLinejoin="round"
         >
-            <path d="M12 22h6a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v10" />
-            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-            <path d="M10.4 12.6a2 2 0 1 1 3 3L8 21l-4 1 1-4Z" />
+            <polyline points="8 18 12 22 16 18" />
+            <polyline points="8 6 12 2 16 6" />
+            <line x1="12" x2="12" y1="2" y2="22" />
         </svg>
     )
 }
@@ -277,7 +261,7 @@ function PlusIcon(props) {
 }
 
 
-function TrashIcon(props) {
+function XIcon(props) {
     return (
         <svg
             {...props}
@@ -291,9 +275,8 @@ function TrashIcon(props) {
             strokeLinecap="round"
             strokeLinejoin="round"
         >
-            <path d="M3 6h18" />
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
         </svg>
     )
 }

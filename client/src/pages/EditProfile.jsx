@@ -91,6 +91,12 @@ export default function EditProfile() {
             .catch(err => console.error(err));
     };
 
+
+    const handleCancel = () => {
+        navigate('/');
+    }
+
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -227,7 +233,7 @@ export default function EditProfile() {
                         </div>
                     </div>
                     <div className="flex justify-end gap-2">
-                        <Button variant="outline">Cancel</Button>
+                        <Button onClick={handleCancel} variant="outline">Cancel</Button>
                         <Button type="submit" onClick={handleSubmit}>Save Changes</Button>
                     </div>
                 </form>
