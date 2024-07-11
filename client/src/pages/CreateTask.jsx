@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/ui-components/ui/dropdown-menu"
 import { Button } from "@/ui-components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/ui-components/ui/avatar"
@@ -15,7 +15,7 @@ import Footer from '@/components/Footer'
 import axios from 'axios'
 
 export default function Component() {
-
+    const navigate = useNavigate();
     const [subTasks, setSubTasks] = useState([]);
     const [newSubTask, setNewSubTask] = useState('');
 
@@ -35,15 +35,18 @@ export default function Component() {
         return user ? JSON.parse(user) : null;
     });
 
-    const { id } = user;
+    const userId = user?.id;
+    console.log("User ID:", userId);
 
     const [formData, setFormData] = useState({
-        userId: id,
+        userId: userId,
         title: "",
         description: "",
         subTasks: [],
-        taskStartedAt: "",
-        taskEndedAt: "",
+        taskStartDate: "",
+        taskStartTime: "",
+        taskCompleteDate: "",
+        taskCompleteTime: "",
         taskStatus: "",
         taskCategory: "",
     });
@@ -56,32 +59,32 @@ export default function Component() {
         setFormData({ ...formData, [id]: value });
     };
 
-
-
     const handleSubmit = async () => {
-        const formattedSubTasks = subTasks.map((task, index) => ({
+        const formattedSubTasks = subTasks.map((task) => ({
             complete: false, // Assuming subtasks are incomplete initially
             title: task,
         }));
 
         const taskData = {
-            userId: id,
+            userId: userId,
             title: formData.title,
             description: formData.description,
             subTasks: formattedSubTasks,
-            taskStartedAt: new Date(`${formData.taskStartedAt}T${formData.taskStartTime}:00`).toISOString(),
-            taskEndedAt: new Date(`${formData.taskEndedAt}T${formData.taskEndTime}:00`).toISOString(),
+            taskStartedAt: new Date(`${formData.taskStartDate}T${formData.taskStartTime}:00`).toISOString(),
+            taskCompletedAt: new Date(`${formData.taskCompleteTime}T${formData.taskEndTime}:00`).toISOString(),
             taskStatus: formData.taskStatus,
             taskCategory: formData.taskCategory,
         };
 
-        console.log(taskData)
-        try {
-            const response = await axios.post('http://localhost:4444/api/tasks', taskData);
+        console.log(taskData);
 
-            if (response.ok) {
+        try {
+            const response = await axios.post('http://localhost:4444/todos/add', taskData);
+
+            if (response.status === 200 || response.status === 201) {
                 // Handle success
                 console.log('Task created successfully');
+                navigate('/');
             } else {
                 // Handle error
                 console.error('Failed to create task');
@@ -91,11 +94,12 @@ export default function Component() {
         }
     };
 
+
     return (
         <div className="flex min-h-screen flex-col bg-background">
             <Navbar />
-            <main className="container flex-1 px-4 py-8 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <main className="container flex-1 px-4 py-8 sm:px-6 lg:px-8 flex justify-center">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-1 lg:grid-cols-1">
                     <Card>
                         <CardHeader>
                             <CardTitle>Create New Task</CardTitle>
@@ -112,23 +116,23 @@ export default function Component() {
                             </div>
                             <div className="grid gap-1.5">
                                 <Label htmlFor="taskCategory">Category</Label>
-                                <Select id="taskCategory" onChange={(value) => handleSelectChange('taskCategory', value)}>
+                                <Select id="taskCategory" onValueChange={(value) => handleSelectChange('taskCategory', value)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select category" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="work">Work</SelectItem>
-                                        <SelectItem value="personal">Personal</SelectItem>
-                                        <SelectItem value="shopping">Shopping</SelectItem>
-                                        <SelectItem value="health">Health</SelectItem>
-                                        <SelectItem value="education">Education</SelectItem>
-                                        <SelectItem value="others">Others</SelectItem>
+                                        <SelectItem value="Work">Work</SelectItem>
+                                        <SelectItem value="Personal">Personal</SelectItem>
+                                        <SelectItem value="Shopping">Shopping</SelectItem>
+                                        <SelectItem value="Health">Health</SelectItem>
+                                        <SelectItem value="Education">Education</SelectItem>
+                                        <SelectItem value="Others">Others</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="grid gap-1.5">
                                 <Label htmlFor="taskStatus">Status</Label>
-                                <Select id="taskStatus" onChange={(value) => handleSelectChange('taskStatus', value)}>
+                                <Select id="taskStatus" onValueChange={(value) => handleSelectChange('taskStatus', value)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
@@ -168,8 +172,8 @@ export default function Component() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="grid gap-1.5">
-                                    <Label htmlFor="taskStartedAt">Start Date</Label>
-                                    <Input type="date" id="taskStartedAt" value={formData.taskStartedAt} onChange={handleChange} />
+                                    <Label htmlFor="taskStartDate">Start Date</Label>
+                                    <Input type="date" id="taskStartDate" value={formData.taskStartedAt} onChange={handleChange} />
                                 </div>
                                 <div className="grid gap-1.5">
                                     <Label htmlFor="taskStartTime">Start Time</Label>
@@ -178,8 +182,8 @@ export default function Component() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="grid gap-1.5">
-                                    <Label htmlFor="taskEndedAt">End Date</Label>
-                                    <Input type="date" id="taskEndedAt" value={formData.taskEndedAt} onChange={handleChange} />
+                                    <Label htmlFor="taskCompleteTime">End Date</Label>
+                                    <Input type="date" id="taskCompleteTime" value={formData.taskEndedAt} onChange={handleChange} />
                                 </div>
                                 <div className="grid gap-1.5">
                                     <Label htmlFor="taskEndTime">End Time</Label>

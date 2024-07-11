@@ -33,6 +33,7 @@ export default function Login() {
             navigate('/', { replace: true });
         } catch (err) {
             console.log(err);
+            alert(err.response.data);
         }
     };
 

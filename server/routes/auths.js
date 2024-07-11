@@ -38,13 +38,17 @@ router.post("/refresh", (req, res) => {
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
+
     const user = await prisma.user.findUnique({
         where: {
             email: email,
         },
     });
 
-    if (user && user.password === password) {
+
+    if (!user) {
+        res.status(400).json("Email not found");
+    } else if (user && user.password === password) {
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
 
@@ -58,8 +62,9 @@ router.post("/login", async (req, res) => {
             refreshToken,
         });
     } else {
-        res.status(400).json("email or Password Invalid");
+        res.status(400).json("Email or Password Invalid");
     }
+
 });
 
 const verify = (req, res, next) => {

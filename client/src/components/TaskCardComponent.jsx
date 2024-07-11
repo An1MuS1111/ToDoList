@@ -2,9 +2,13 @@ import { Button } from "@/ui-components/ui/button"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/ui-components/ui/accordion"
 import { Checkbox } from "@/ui-components/ui/checkbox"
 import { Badge } from "@/ui-components/ui/badge"
+import { useEffect, useState } from "react"
+import axios from "axios"
 
 
 const TaskCardComponent = ({ items }) => {
+
+
 
 
 
@@ -17,6 +21,15 @@ const TaskCardComponent = ({ items }) => {
 
 
 
+    const handleDelete = async (taskId) => {
+
+        try {
+            await axios.delete(`http://localhost:4444/todos/${taskId}`);
+            setItems_((prevItems) => prevItems.filter((item) => item.id !== taskId));
+        } catch (error) {
+            console.error('Error deleting task:', error);
+        };
+    }
 
     return (
         <>
@@ -27,19 +40,19 @@ const TaskCardComponent = ({ items }) => {
 
                         <div className="flex items-center justify-between" >
 
-                            <div className="flex items-center gap-2">
-                                <Checkbox />
+                            <div className="flex items-center ">
+
                                 <span className="text-sm font-medium">{item.title}</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center ">
                                 <Badge variant="secondary">{item.taskCategory}</Badge>
 
 
-                                <Button size="icon" variant="ghost">
-                                    <MoveVerticalIcon className="h-4 w-4" />
+                                <Button onClick={() => handleDelete(item.taskId)} size="icon" variant="ghost">
+                                    <BinIcon className="h-4 w-4" />
                                 </Button>
-                            </div>
-                            <AccordionTrigger className="flex items-center justify-between"></AccordionTrigger></div>
+                                <AccordionTrigger className="flex items-center "></AccordionTrigger></div>
+                        </div>
                         {/* Trigger end  */}
                         <AccordionContent>
                             <div className="grid gap-2">
@@ -82,24 +95,10 @@ const TaskCardComponent = ({ items }) => {
 export default TaskCardComponent
 
 
-function MoveVerticalIcon(props) {
+function BinIcon() {
     return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <polyline points="8 18 12 22 16 18" />
-            <polyline points="8 6 12 2 16 6" />
-            <line x1="12" x2="12" y1="2" y2="22" />
-        </svg>
+
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.8536 2.85355C13.0488 2.65829 13.0488 2.34171 12.8536 2.14645C12.6583 1.95118 12.3417 1.95118 12.1464 2.14645L7.5 6.79289L2.85355 2.14645C2.65829 1.95118 2.34171 1.95118 2.14645 2.14645C1.95118 2.34171 1.95118 2.65829 2.14645 2.85355L6.79289 7.5L2.14645 12.1464C1.95118 12.3417 1.95118 12.6583 2.14645 12.8536C2.34171 13.0488 2.65829 13.0488 2.85355 12.8536L7.5 8.20711L12.1464 12.8536C12.3417 13.0488 12.6583 13.0488 12.8536 12.8536C13.0488 12.6583 13.0488 12.3417 12.8536 12.1464L8.20711 7.5L12.8536 2.85355Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
     )
 }
 
