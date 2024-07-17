@@ -10,6 +10,7 @@ import Footer from "@/components/Footer"
 import Navbar from "@/components/Navbar"
 import { useAuth } from "@/hooks/AuthProvider"
 import { useParams, useNavigate } from "react-router-dom"
+import axios from "axios"
 
 
 
@@ -31,6 +32,24 @@ export default function Component() {
     const [urgents, setUrgents] = useState([])
     const [dones, setDones] = useState([])
 
+    const handleDelete = async (taskId, taskStatus) => {
+        console.log(`Here is the task ID: ${taskId} and task status: ${taskStatus}`)
+        try {
+            await axios.delete(`http://localhost:4444/todos/${taskId}`);
+            if (taskStatus === 'todo') {
+                setTodos((prevItems) => prevItems.filter((item) => item.id !== taskId));
+                console.log('Todo task deleted: ', taskId)
+            } else if (taskStatus === 'urgent') {
+                setUrgents((prevItems) => prevItems.filter((item) => item.id !== taskId));
+                console.log('Urgent task deleted: ', taskId)
+            } else if (taskStatus === 'done') {
+                setDones((prevItems) => prevItems.filter((item) => item.id !== taskId));
+                console.log('Done task deleted: ', taskId)
+            }
+        } catch (error) {
+            console.error('Error deleting task:', error);
+        };
+    }
 
     useEffect(() => {
         if (apiData) {
@@ -67,7 +86,11 @@ export default function Component() {
                         </CardHeader>
                         <CardContent>
                             {/* TODO */}
-                            <TaskCardComponent items={todos} />
+
+
+                            {todos.map((todo, index) =>
+                                <TaskCardComponent item={todo} handleDelete={handleDelete} />
+                            )}
                         </CardContent>
                         <CardFooter>
                             {/* <Button size="sm">Add Task</Button> */}
@@ -79,9 +102,12 @@ export default function Component() {
                             <CardDescription>High priority tasks.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {/* URGENT */}
-                            <TaskCardComponent items={urgents} />
 
+                            {/* URGENT */}
+
+                            {urgents.map((urgent, index) =>
+                                <TaskCardComponent item={urgent} handleDelete={handleDelete} />
+                            )}
                         </CardContent>
                         <CardFooter>
                             {/* <Button size="sm">Add Task</Button> */}
@@ -94,7 +120,10 @@ export default function Component() {
                         </CardHeader>
                         <CardContent>
                             {/* DONE */}
-                            <TaskCardComponent items={dones} />
+
+                            {dones.map((done, index) =>
+                                <TaskCardComponent item={done} handleDelete={handleDelete} />
+                            )}
                         </CardContent>
                         <CardFooter>
                             {/* <Button size="sm">Add Task</Button> */}
