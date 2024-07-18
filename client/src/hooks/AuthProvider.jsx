@@ -6,31 +6,41 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
     const [token, setToken_] = useState(localStorage.getItem('token'));
-    const [user, setUser] = useState(() => {
+    const [user, setUser_] = useState(() => {
         const user = localStorage.getItem('user');
         return user ? JSON.parse(user) : null;
     });
 
     const setToken = (newToken) => {
         setToken_(newToken);
+        if (newToken) {
+            localStorage.setItem('token', newToken);
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + newToken;
+        } else {
+            localStorage.removeItem('token');
+            delete axios.defaults.headers.common['Authorization'];
+        }
+    };
+
+    const setUser = (newUser) => {
+        setUser_(newUser);
+        if (newUser) {
+            localStorage.setItem('user', JSON.stringify(newUser));
+        } else {
+            localStorage.removeItem('user');
+        }
     };
 
     const logout = () => {
-        setToken_(null);
+        setToken(null);
         setUser(null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        delete axios.defaults.headers.common['Authorization'];
     };
 
     useEffect(() => {
         if (token) {
             axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
-            localStorage.setItem('token', token);
         } else {
             delete axios.defaults.headers.common['Authorization'];
-            localStorage.removeItem('token');
-
         }
     }, [token]);
 
@@ -46,6 +56,7 @@ const AuthProvider = ({ children }) => {
             return res.data;
         } catch (err) {
             console.log(err);
+            logout();
         }
     };
 
@@ -53,11 +64,13 @@ const AuthProvider = ({ children }) => {
 
     axiosJWT.interceptors.request.use(
         async (config) => {
-            let currentDate = new Date();
-            const decodedToken = jwtDecode(user.accessToken);
-            if (decodedToken.exp * 1000 < currentDate.getTime()) {
-                const data = await refreshToken();
-                config.headers['authorization'] = 'Bearer ' + data.accessToken;
+            if (user) {
+                let currentDate = new Date();
+                const decodedToken = jwtDecode(user.accessToken);
+                if (decodedToken.exp * 1000 < currentDate.getTime()) {
+                    const data = await refreshToken();
+                    config.headers['Authorization'] = 'Bearer ' + data.accessToken;
+                }
             }
             return config;
         },
@@ -65,7 +78,6 @@ const AuthProvider = ({ children }) => {
             return Promise.reject(error);
         }
     );
-
 
     const contextValue = useMemo(
         () => ({
@@ -90,4 +102,3 @@ export const useAuth = () => {
 };
 
 export default AuthProvider;
-

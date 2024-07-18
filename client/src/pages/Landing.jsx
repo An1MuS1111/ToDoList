@@ -11,6 +11,7 @@ import Navbar from "@/components/Navbar"
 import { useAuth } from "@/hooks/AuthProvider"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from "axios"
+import { useGetUser } from "@/hooks/useGetUser"
 
 
 
@@ -19,21 +20,27 @@ export default function Component() {
 
     const navigate = useNavigate();
 
-    const [user, setUser] = useState(() => {
-        const user = localStorage.getItem('user');
-        return user ? JSON.parse(user) : null;
-    });
-
-    const { id } = user;
+    const user = useGetUser();
 
 
+
+
+
+    const { id, accessToken } = user;
+
+    const { axiosJWT, token } = useAuth();
     const [tasks, setTasks] = useState([]);
 
 
     const handleDelete = async (taskId, taskStatus) => {
+        console.log(`Here is the accessToken: ${accessToken}`)
         console.log(`Here is the task ID: ${taskId} and task status: ${taskStatus}`)
         try {
-            await axios.delete(`http://localhost:4444/todos/${taskId}`);
+            await axiosJWT.delete(`http://localhost:4444/todos/${taskId}`, {
+                headers: { authorization: "Bearer " + accessToken },
+            });
+
+            // await axios.delete(`http://localhost:4444/todos/${taskId}`);
             setTasks((prevItems) => prevItems.filter((item) => item.id !== taskId));
         } catch (error) {
             console.error('Error deleting task:', error);
@@ -42,22 +49,32 @@ export default function Component() {
 
     useEffect(() => {
 
+        // const fetchTasks = async () => {
+        //     try {
+        //         const res = await axios.get(`http://localhost:4444/todos/${id}`);
+        //         setTasks(res.data);
+        //     } catch (error) {
+        //         console.error('Error fetching tasks:', error);
+        //     }
+        // };
+
         const fetchTasks = async () => {
             try {
-                const res = await axios.get(`http://localhost:4444/todos/${id}`);
+                const res = await axiosJWT.get(`http://localhost:4444/todos/${id}`, {
+
+                    headers: { authorization: "Bearer " + accessToken },
+
+                });
                 setTasks(res.data);
             } catch (error) {
                 console.error('Error fetching tasks:', error);
             }
         };
 
+
         fetchTasks();
 
     }, [tasks]);
-
-
-
-
 
     return (
         <div className="flex min-h-screen flex-col bg-background">

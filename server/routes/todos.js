@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { PrismaClientValidationError } = require('@prisma/client/runtime/library');
-
+const { verify } = require('./auths');
 async function main() {
     try {
         await prisma.$connect();
@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get all todos by user ID
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', verify, async (req, res) => {
     const { userId } = req.params;
     try {
         const todos = await prisma.todo.findMany({

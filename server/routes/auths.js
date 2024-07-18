@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken');
 
 let refreshTokens = [];
 
-const generateAccessToken = user => jwt.sign({ id: user.id }, "mySecretKey", { expiresIn: '5s' });
-const generateRefreshToken = user => jwt.sign({ id: user.id }, "myRefreshSecretKey", { expiresIn: '15m' });
+const generateAccessToken = user => jwt.sign({ id: user.id }, "mySecretKey", { expiresIn: '15m' });
+const generateRefreshToken = user => jwt.sign({ id: user.id }, "myRefreshSecretKey", { expiresIn: '12h' });
 
 router.post("/refresh", (req, res) => {
     const refreshToken = req.body.token;
@@ -92,3 +92,4 @@ router.post('/logout', verify, (req, res) => {
 });
 
 module.exports = router;
+module.exports.verify = verify;
