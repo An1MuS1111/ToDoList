@@ -3,16 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { PrismaClientValidationError } = require('@prisma/client/runtime/library');
 const { verify } = require('./auths');
-async function main() {
-    try {
-        await prisma.$connect();
-        console.log('Database connected');
-    } catch (error) {
-        console.error('Failed to connect to database:', error);
-    }
-}
 
-main();
 // Get all todos
 router.get('/', async (req, res) => {
     try {
@@ -39,7 +30,7 @@ router.get('/:userId', verify, async (req, res) => {
 
 // Add a new todo
 
-router.post('/add', async (req, res) => {
+router.post('/add', verify, async (req, res) => {
     const { userId, title, description, subTasks, taskStartedAt, taskCompletedAt, taskStatus, taskCategory } = req.body;
     if (!userId || !title || !taskStartedAt || !taskCompletedAt || !taskStatus || !taskCategory) {
         return res.status(400).json({ error: 'Required fields are missing' });

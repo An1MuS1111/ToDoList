@@ -13,6 +13,10 @@ import { useState } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import axios from 'axios'
+import { useGetUser } from "@/hooks/useGetUser"
+import { useAuth } from "@/hooks/AuthProvider"
+
+
 
 export default function Component() {
     const navigate = useNavigate();
@@ -30,13 +34,10 @@ export default function Component() {
         setSubTasks(subTasks.filter((_, i) => i !== index));
     };
 
-    const [user, setUser] = useState(() => {
-        const user = localStorage.getItem('user');
-        return user ? JSON.parse(user) : null;
-    });
+    const { axiosJWT } = useAuth();
+    const { accessToken } = useGetUser();
+    const userId = useGetUser().id;
 
-    const userId = user?.id;
-    console.log("User ID:", userId);
 
     const [formData, setFormData] = useState({
         userId: userId,
@@ -79,7 +80,9 @@ export default function Component() {
         console.log(taskData);
 
         try {
-            const response = await axios.post('http://localhost:4444/todos/add', taskData);
+            const response = await axiosJWT.post('http://localhost:4444/todos/add', taskData, {
+                headers: { authorization: "Bearer " + accessToken },
+            });
 
             if (response.status === 200 || response.status === 201) {
                 // Handle success

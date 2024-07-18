@@ -1,9 +1,14 @@
 const express = require('express')
 const cors = require('cors')
 const app = express()
+const { DatabaseConnection } = require('./routes/auths')
 app.use(cors());
 app.use(express.json());
 
+
+
+
+DatabaseConnection();
 
 // import routes
 const usersRouter = require('./routes/users')

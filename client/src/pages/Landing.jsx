@@ -20,13 +20,10 @@ export default function Component() {
 
     const navigate = useNavigate();
 
-    const user = useGetUser();
 
 
+    const { id, accessToken } = useGetUser();
 
-
-
-    const { id, accessToken } = user;
 
     const { axiosJWT, token } = useAuth();
     const [tasks, setTasks] = useState([]);
@@ -49,14 +46,7 @@ export default function Component() {
 
     useEffect(() => {
 
-        // const fetchTasks = async () => {
-        //     try {
-        //         const res = await axios.get(`http://localhost:4444/todos/${id}`);
-        //         setTasks(res.data);
-        //     } catch (error) {
-        //         console.error('Error fetching tasks:', error);
-        //     }
-        // };
+
 
         const fetchTasks = async () => {
             try {

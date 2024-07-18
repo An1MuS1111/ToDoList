@@ -3,6 +3,17 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 
+async function DatabaseConnection() {
+    try {
+        await prisma.$connect();
+        console.log('Database connected');
+    } catch (error) {
+        console.error('Failed to connect to database:', error);
+    }
+}
+
+
+
 let refreshTokens = [];
 
 const generateAccessToken = user => jwt.sign({ id: user.id }, "mySecretKey", { expiresIn: '15m' });
@@ -93,3 +104,4 @@ router.post('/logout', verify, (req, res) => {
 
 module.exports = router;
 module.exports.verify = verify;
+module.exports.DatabaseConnection = DatabaseConnection;
