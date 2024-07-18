@@ -26,51 +26,36 @@ export default function Component() {
 
     const { id } = user;
 
-    const { isLoading, apiData, serverError } = useFetch('http://localhost:4444/todos/' + id);
 
-    const [todos, setTodos] = useState([])
-    const [urgents, setUrgents] = useState([])
-    const [dones, setDones] = useState([])
+    const [tasks, setTasks] = useState([]);
+
 
     const handleDelete = async (taskId, taskStatus) => {
         console.log(`Here is the task ID: ${taskId} and task status: ${taskStatus}`)
         try {
             await axios.delete(`http://localhost:4444/todos/${taskId}`);
-            if (taskStatus === 'todo') {
-                setTodos((prevItems) => prevItems.filter((item) => item.id !== taskId));
-                console.log('Todo task deleted: ', taskId)
-            } else if (taskStatus === 'urgent') {
-                setUrgents((prevItems) => prevItems.filter((item) => item.id !== taskId));
-                console.log('Urgent task deleted: ', taskId)
-            } else if (taskStatus === 'done') {
-                setDones((prevItems) => prevItems.filter((item) => item.id !== taskId));
-                console.log('Done task deleted: ', taskId)
-            }
+            setTasks((prevItems) => prevItems.filter((item) => item.id !== taskId));
         } catch (error) {
             console.error('Error deleting task:', error);
         };
     }
 
     useEffect(() => {
-        if (apiData) {
 
-            const todoTasks = apiData.filter(task => task.taskStatus === 'todo');
-            const urgentTasks = apiData.filter(task => task.taskStatus === 'urgent');
-            const doneTasks = apiData.filter(task => task.taskStatus === 'done');
+        const fetchTasks = async () => {
+            try {
+                const res = await axios.get(`http://localhost:4444/todos/${id}`);
+                setTasks(res.data);
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+            }
+        };
 
-            setTodos(todoTasks);
-            setUrgents(urgentTasks);
-            setDones(doneTasks);
-        }
-    }, [apiData]);
+        fetchTasks();
 
-    if (isLoading) {
-        return <div>...Loading</div>;
-    }
+    }, [tasks]);
 
-    if (serverError) {
-        return <div>Error: {serverError.message}</div>;
-    }
+
 
 
 
@@ -86,9 +71,7 @@ export default function Component() {
                         </CardHeader>
                         <CardContent>
                             {/* TODO */}
-
-
-                            {todos.map((todo, index) =>
+                            {tasks.filter(task => task.taskStatus === 'todo').map((todo, index) =>
                                 <TaskCardComponent item={todo} handleDelete={handleDelete} />
                             )}
                         </CardContent>
@@ -105,7 +88,7 @@ export default function Component() {
 
                             {/* URGENT */}
 
-                            {urgents.map((urgent, index) =>
+                            {tasks.filter(task => task.taskStatus === 'urgent').map((urgent, index) =>
                                 <TaskCardComponent item={urgent} handleDelete={handleDelete} />
                             )}
                         </CardContent>
@@ -121,7 +104,7 @@ export default function Component() {
                         <CardContent>
                             {/* DONE */}
 
-                            {dones.map((done, index) =>
+                            {tasks.filter(task => task.taskStatus === 'done').map((done, index) =>
                                 <TaskCardComponent item={done} handleDelete={handleDelete} />
                             )}
                         </CardContent>
